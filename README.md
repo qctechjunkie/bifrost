@@ -8,9 +8,9 @@ Self-hosted [Bifrost](https://docs.getbifrost.ai) AI gateway running on Docker w
 
 ```
 bifrost/
-├── docker-compose.yml        # Full stack definition (Bifrost + PostgreSQL)
-├── config.json.template      # Bifrost bootstrap config — copy to data dir before first start
-├── postgres/
+├── compose.yaml              # Full stack definition (Bifrost + PostgreSQL)
+├── config.json               # Bifrost bootstrap config — safe to commit (no hardcoded secrets)
+├── initdb/
 │   └── init-db.sql           # Creates bifrost_logs DB with required UTF8 encoding
 ├── .env.example              # All configurable variables with descriptions
 ├── .gitignore                # Prevents secrets and runtime data from being committed
@@ -39,17 +39,19 @@ Edit `.env` and fill in all values — especially `POSTGRES_PASSWORD`. See [Gene
 
 ### 2. Create the data directory and place the Bifrost config
 
-Bifrost requires a `config.json` in its data directory to use PostgreSQL instead of SQLite. This file bootstraps the database on first start and is then ignored — Bifrost uses the database exclusively after that.
+Bifrost requires a `config.json` in its data directory to use PostgreSQL instead of SQLite. This file bootstraps the database on first start — after that, Bifrost uses the database exclusively and the file is ignored.
+
+The `config.json` in this repo is safe to commit because all sensitive values use `env.VARNAME` references resolved at runtime from the container environment. Copy it into your data directory before first start:
 
 ```bash
 # Create the data directory (adjust path to match your DOCKER_DATA_PATH)
-mkdir -p /your/DOCKER_DATA_PATH/bifrost/data
+mkdir -p /your/DOCKER_DATA_PATH/data
 
-# Copy the template into place
-cp config.json.template /your/DOCKER_DATA_PATH/bifrost/data/config.json
+# Copy from the repo
+cp config.json /your/DOCKER_DATA_PATH/data/config.json
 ```
 
-> **Note:** Do not put API keys or secrets directly in `config.json`. Provider keys are added via the Web UI after the stack is running. The `env.VARNAME` references in `config.json` are resolved from the container's environment variables at startup.
+> **Note:** Never add hardcoded credentials to `config.json`. Provider API keys are added via the Web UI after the stack is running — they are stored in the PostgreSQL database, not in this file.
 
 ### 3. Start the stack
 

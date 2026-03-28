@@ -3,9 +3,9 @@
 .env.local
 .env.*.local
 
-# Bifrost runtime data directory
-# Contains config.json (with potential secrets), SQLite databases, and logs
+# Bifrost runtime data directory — SQLite databases, logs, and runtime state
+# config.json in the repo root is safe to commit (uses env.VARNAME references only)
 data/
 
 # PostgreSQL data directory (if ever mapped locally instead of via DOCKER_DATA_PATH)
-postgres/data/
+postgres/

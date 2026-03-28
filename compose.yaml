@@ -60,7 +60,7 @@ services:
     volumes:
       - ${DOCKER_DATA_PATH}/postgres:/var/lib/postgresql/data
       # Creates the bifrost_logs database on first init (runs once on empty data dir)
-      - ./postgres/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+      - ./initdb/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bifrost} -d ${POSTGRES_CONFIG_DB:-bifrost_config}"]
       interval: 10s
