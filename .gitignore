@@ -1,0 +1,11 @@
+# Environment files — contain secrets, never commit these
+.env
+.env.local
+.env.*.local
+
+# Bifrost runtime data directory
+# Contains config.json (with potential secrets), SQLite databases, and logs
+data/
+
+# PostgreSQL data directory (if ever mapped locally instead of via DOCKER_DATA_PATH)
+postgres/data/
