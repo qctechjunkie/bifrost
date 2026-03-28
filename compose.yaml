@@ -31,9 +31,9 @@ services:
     volumes:
       # app-dir: stores config.json (bootstrap), config.db, logs.db (if SQLite),
       # and any other Bifrost runtime data.
-      # IMPORTANT: copy config.json.template to ${DOCKER_DATA_PATH}/bifrost/data/config.json
+      # IMPORTANT: copy config.json.template to ${DOCKER_DATA_PATH}/data/config.json
       # before first start — required to use PostgreSQL instead of SQLite.
-      - ${DOCKER_DATA_PATH}/bifrost/data:/app/data
+      - ${DOCKER_DATA_PATH}/data:/app/data
     depends_on:
       bifrost-postgres:
         condition: service_healthy
@@ -58,7 +58,7 @@ services:
       # Ensures the default database is also created with UTF8 via template0
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.UTF-8"
     volumes:
-      - ${DOCKER_DATA_PATH}/bifrost/postgres:/var/lib/postgresql/data
+      - ${DOCKER_DATA_PATH}/postgres:/var/lib/postgresql/data
       # Creates the bifrost_logs database on first init (runs once on empty data dir)
       - ./postgres/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck:
