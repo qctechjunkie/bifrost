@@ -1,5 +1,4 @@
 services:
-
   # ============================================================
   # Bifrost AI Gateway
   # Web UI: http://<host>:${BIFROST_PORT}
@@ -21,55 +20,25 @@ services:
       # Log format: json | pretty
       LOG_STYLE: "${LOG_STYLE:-json}"
       # PostgreSQL credentials — referenced in config.json as env.VARNAME
-      POSTGRES_HOST: "bifrost-postgres"
-      POSTGRES_PORT: "5432"
+      POSTGRES_HOST: "${POSTGRES_HOST:-global-postgres}"
+      POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
       POSTGRES_USER: "${POSTGRES_USER:-bifrost}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}"
       POSTGRES_CONFIG_DB: "${POSTGRES_CONFIG_DB:-bifrost_config}"
       POSTGRES_LOGS_DB: "${POSTGRES_LOGS_DB:-bifrost_logs}"
       POSTGRES_SSLMODE: "disable"
     volumes:
-      # app-dir: stores config.json (bootstrap), config.db, logs.db (if SQLite),
-      # and any other Bifrost runtime data.
-      # IMPORTANT: copy config.json.template to ${DOCKER_DATA_PATH}/data/config.json
-      # before first start — required to use PostgreSQL instead of SQLite.
       - ${DOCKER_DATA_PATH}/data:/app/data
     depends_on:
-      bifrost-postgres:
+      global-postgres:
         condition: service_healthy
     networks:
       - bifrost-internal
-
-  # ============================================================
-  # PostgreSQL 16
-  # Required: >= 16 (hard enforced by Bifrost logs store)
-  # Two databases: bifrost_config and bifrost_logs
-  # Both created with UTF8 encoding via template0 (Bifrost requirement)
-  # ============================================================
-  bifrost-postgres:
-    image: postgres:16
-    container_name: bifrost-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: "${POSTGRES_USER:-bifrost}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}"
-      # Sets the default database; init-db.sql creates the second one
-      POSTGRES_DB: "${POSTGRES_CONFIG_DB:-bifrost_config}"
-      # Ensures the default database is also created with UTF8 via template0
-      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.UTF-8"
-    volumes:
-      - ${DOCKER_DATA_PATH}/postgres:/var/lib/postgresql/data
-      # Creates the bifrost_logs database on first init (runs once on empty data dir)
-      - ./initdb/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bifrost} -d ${POSTGRES_CONFIG_DB:-bifrost_config}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - bifrost-internal
+      - postgres-network
 
 networks:
   bifrost-internal:
     driver: bridge
+  postgres-network:
+    external: true
+    name: ${POSTGRES_NETWORK_NAME:?POSTGRES_NETWORK_NAME must be set}
