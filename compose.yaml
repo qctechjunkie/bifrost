@@ -29,9 +29,6 @@ services:
       POSTGRES_SSLMODE: "disable"
     volumes:
       - ${DOCKER_DATA_PATH}/data:/app/data
-    depends_on:
-      global-postgres:
-        condition: service_healthy
     networks:
       - bifrost-internal
       - postgres-network
