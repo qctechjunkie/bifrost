@@ -9,9 +9,21 @@ services:
     platform: linux/amd64
     container_name: bifrost
     restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    mem_limit: 1.5g
+    cpus: 1.0
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
     ports:
       - "${BIFROST_PORT:-8080}:8080"
     environment:
+      REDIS_ADDR: "redis:6379"
+      BIFROST_LOG_LEVEL: "${BIFROST_LOG_LEVEL:-info}"
       APP_PORT: "8080"
       # Must be 0.0.0.0 in Docker — default 'localhost' makes the container unreachable
       APP_HOST: "0.0.0.0"
@@ -32,6 +44,7 @@ services:
     networks:
       - bifrost-internal
       - postgres-network
+      - redis-network
 
 networks:
   bifrost-internal:
@@ -39,3 +52,5 @@ networks:
   postgres-network:
     external: true
     name: ${POSTGRES_NETWORK_NAME:?POSTGRES_NETWORK_NAME must be set}
+  redis-network:
+    external: true
