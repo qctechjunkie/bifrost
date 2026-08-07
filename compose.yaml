@@ -9,9 +9,6 @@ services:
     platform: linux/amd64
     container_name: bifrost
     restart: unless-stopped
-    depends_on:
-      redis:
-        condition: service_healthy
     mem_limit: 1.5g
     cpus: 1.0
     logging:
