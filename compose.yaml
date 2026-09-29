@@ -6,7 +6,7 @@ services:
   # ============================================================
   bifrost:
     image: maximhq/bifrost:latest
-    platform: linux/amd64
+    platform: linux/arm64
     container_name: bifrost
     restart: unless-stopped
     mem_limit: 1.5g
