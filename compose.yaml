@@ -37,6 +37,7 @@ services:
       POSTGRES_CONFIG_DB: "${POSTGRES_CONFIG_DB:-bifrost_config}"
       POSTGRES_LOGS_DB: "${POSTGRES_LOGS_DB:-bifrost_logs}"
       POSTGRES_SSLMODE: "disable"
+      BIFROST_SETUP_TOKEN: "${BIFROST_SETUP_TOKEN:?BIFROST_SETUP_TOKEN must be set}"
     volumes:
       - ${DOCKER_DATA_PATH}/data:/app/data
     networks:
